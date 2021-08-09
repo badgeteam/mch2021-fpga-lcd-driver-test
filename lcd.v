@@ -426,7 +426,7 @@ always @ (posedge clk) begin
             reg_lcd_wr <= 1'b0;
             reg_pixel_byte <= 1'b0;
             reg_pixel_byte_next <= 1'b0;
-       end else begin
+        end else begin
             reg_lcd_rs   <= 1'b1;
             if (reg_pixel_y == 16) begin
                 reg_lcd_data <= 16'b1111100000000000;
