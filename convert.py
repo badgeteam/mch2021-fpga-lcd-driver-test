@@ -1,4 +1,4 @@
-data = [            [0xEF, 0x03,0x80,0x02],
+data = [    [0xEF, 0x03,0x80,0x02],
             [0xCF, 0x00,0XC1,0X30],
             [0xED, 0x64,0x03,0X12,0X81],
             [0xE8, 0x85,0x00,0x78],
@@ -26,12 +26,7 @@ data = [            [0xEF, 0x03,0x80,0x02],
 ]
 
 def print_item(index, rs, val):
-    print("if (init_sequence_counter == {}) begin".format(index))
-    print("    reg_lcd_rs   <= 1'b{};".format("1" if rs else "0"))
-    print("    reg_lcd_data <= 8'h{:02x};".format(val))
-    print("    reg_lcd_wr   <= 1'b1;")
-    print("end else ", end="")
-
+    print("mem[8'h{:02x}] <= 9'h{}{:02x};".format(index, "1" if rs else "0", val))
 
 counter = 0
 for index in range(len(data)):

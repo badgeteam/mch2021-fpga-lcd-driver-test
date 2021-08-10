@@ -34,7 +34,7 @@ assign uart_tx = uart_rx;
 
 wire clk;
 
-SB_HFOSC #(.CLKHF_DIV("0b10")) OSCInst0 (
+SB_HFOSC #(.CLKHF_DIV("0b00")) OSCInst0 (
     .CLKHFEN(1'b1),
     .CLKHFPU(1'b1),
     .CLKHF(clk)

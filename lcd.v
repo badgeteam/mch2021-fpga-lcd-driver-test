@@ -23,8 +23,104 @@ reg debug1 = 0;
 reg debug2 = 0;
 reg debug3 = 0;
 reg [2:0] state = 2'h00;
-reg [31:0] slow_counter = 32'b0;
 
+reg  [8:0] init_sequence[0:92];
+
+initial begin
+    init_sequence[8'h00] <= 9'h0ef;
+    init_sequence[8'h01] <= 9'h103;
+    init_sequence[8'h02] <= 9'h180;
+    init_sequence[8'h03] <= 9'h102;
+    init_sequence[8'h04] <= 9'h0cf;
+    init_sequence[8'h05] <= 9'h100;
+    init_sequence[8'h06] <= 9'h1c1;
+    init_sequence[8'h07] <= 9'h130;
+    init_sequence[8'h08] <= 9'h0ed;
+    init_sequence[8'h09] <= 9'h164;
+    init_sequence[8'h0a] <= 9'h103;
+    init_sequence[8'h0b] <= 9'h112;
+    init_sequence[8'h0c] <= 9'h181;
+    init_sequence[8'h0d] <= 9'h0e8;
+    init_sequence[8'h0e] <= 9'h185;
+    init_sequence[8'h0f] <= 9'h100;
+    init_sequence[8'h10] <= 9'h178;
+    init_sequence[8'h11] <= 9'h0cb;
+    init_sequence[8'h12] <= 9'h139;
+    init_sequence[8'h13] <= 9'h12c;
+    init_sequence[8'h14] <= 9'h100;
+    init_sequence[8'h15] <= 9'h134;
+    init_sequence[8'h16] <= 9'h102;
+    init_sequence[8'h17] <= 9'h0f7;
+    init_sequence[8'h18] <= 9'h120;
+    init_sequence[8'h19] <= 9'h0ea;
+    init_sequence[8'h1a] <= 9'h100;
+    init_sequence[8'h1b] <= 9'h100;
+    init_sequence[8'h1c] <= 9'h0c0;
+    init_sequence[8'h1d] <= 9'h123;
+    init_sequence[8'h1e] <= 9'h0c1;
+    init_sequence[8'h1f] <= 9'h110;
+    init_sequence[8'h20] <= 9'h0c5;
+    init_sequence[8'h21] <= 9'h13e;
+    init_sequence[8'h22] <= 9'h128;
+    init_sequence[8'h23] <= 9'h0c7;
+    init_sequence[8'h24] <= 9'h186;
+    init_sequence[8'h25] <= 9'h036;
+    init_sequence[8'h26] <= 9'h148;
+    init_sequence[8'h27] <= 9'h03a;
+    init_sequence[8'h28] <= 9'h155;
+    init_sequence[8'h29] <= 9'h0b1;
+    init_sequence[8'h2a] <= 9'h100;
+    init_sequence[8'h2b] <= 9'h118;
+    init_sequence[8'h2c] <= 9'h0b6;
+    init_sequence[8'h2d] <= 9'h108;
+    init_sequence[8'h2e] <= 9'h182;
+    init_sequence[8'h2f] <= 9'h127;
+    init_sequence[8'h30] <= 9'h0f2;
+    init_sequence[8'h31] <= 9'h100;
+    init_sequence[8'h32] <= 9'h026;
+    init_sequence[8'h33] <= 9'h101;
+    init_sequence[8'h34] <= 9'h0e0;
+    init_sequence[8'h35] <= 9'h10f;
+    init_sequence[8'h36] <= 9'h131;
+    init_sequence[8'h37] <= 9'h12b;
+    init_sequence[8'h38] <= 9'h10c;
+    init_sequence[8'h39] <= 9'h10e;
+    init_sequence[8'h3a] <= 9'h108;
+    init_sequence[8'h3b] <= 9'h14e;
+    init_sequence[8'h3c] <= 9'h1f1;
+    init_sequence[8'h3d] <= 9'h137;
+    init_sequence[8'h3e] <= 9'h107;
+    init_sequence[8'h3f] <= 9'h110;
+    init_sequence[8'h40] <= 9'h103;
+    init_sequence[8'h41] <= 9'h10e;
+    init_sequence[8'h42] <= 9'h109;
+    init_sequence[8'h43] <= 9'h100;
+    init_sequence[8'h44] <= 9'h0e1;
+    init_sequence[8'h45] <= 9'h100;
+    init_sequence[8'h46] <= 9'h10e;
+    init_sequence[8'h47] <= 9'h114;
+    init_sequence[8'h48] <= 9'h103;
+    init_sequence[8'h49] <= 9'h111;
+    init_sequence[8'h4a] <= 9'h107;
+    init_sequence[8'h4b] <= 9'h131;
+    init_sequence[8'h4c] <= 9'h1c1;
+    init_sequence[8'h4d] <= 9'h148;
+    init_sequence[8'h4e] <= 9'h108;
+    init_sequence[8'h4f] <= 9'h10f;
+    init_sequence[8'h50] <= 9'h10c;
+    init_sequence[8'h51] <= 9'h131;
+    init_sequence[8'h52] <= 9'h136;
+    init_sequence[8'h53] <= 9'h10f;
+    init_sequence[8'h54] <= 9'h011;
+    init_sequence[8'h55] <= 9'h029;
+    init_sequence[8'h56] <= 9'h036;
+    init_sequence[8'h57] <= 9'h100;
+    init_sequence[8'h58] <= 9'h02a;
+    init_sequence[8'h59] <= 9'h100;
+    init_sequence[8'h5a] <= 9'h02b;
+    init_sequence[8'h5b] <= 9'h100;
+    init_sequence[8'h5c] <= 9'h02c;
+end
 
 always @ (posedge clk) begin
     if (~reg_lcd_wr) begin
@@ -47,377 +143,9 @@ always @ (posedge clk) begin
                 reg_lcd_rs   <= 1'b1;
                 reg_lcd_data <= 16'h00;
                 reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 0) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hef;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 1) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h03;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 2) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h80;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 3) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h02;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 4) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hcf;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 5) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h00;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 6) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'hc1;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 7) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h30;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 8) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hed;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 9) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h64;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 10) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h03;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 11) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h12;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 12) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h81;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 13) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'he8;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 14) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h85;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 15) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h00;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 16) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h78;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 17) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hcb;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 18) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h39;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 19) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h2c;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 20) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h00;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 21) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h34;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 22) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h02;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 23) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hf7;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 24) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h20;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 25) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hea;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 26) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h00;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 27) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h00;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 28) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hc0;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 29) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h23;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 30) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hc1;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 31) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h10;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 32) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hc5;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 33) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h3e;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 34) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h28;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 35) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hc7;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 36) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h86;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 37) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'h36;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 38) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h48;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 39) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'h3a;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 40) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h55;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 41) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hb1;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 42) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h00;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 43) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h18;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 44) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hb6;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 45) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h08;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 46) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h82;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 47) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h27;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 48) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'hf2;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 49) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h00;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 50) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'h26;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 51) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h01;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 52) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'he0;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 53) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h0f;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 54) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h31;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 55) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h2b;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 56) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h0c;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 57) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h0e;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 58) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h08;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 59) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h4e;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 60) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'hf1;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 61) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h37;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 62) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h07;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 63) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h10;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 64) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h03;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 65) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h0e;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 66) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h09;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 67) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h00;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 68) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'he1;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 69) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h00;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 70) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h0e;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 71) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h14;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 72) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h03;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 73) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h11;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 74) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h07;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 75) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h31;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 76) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'hc1;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 77) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h48;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 78) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h08;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 79) begin
-               reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h0f;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 80) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h0c;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 81) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h31;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 82) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h36;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 83) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h0f;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 84) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'h11;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 85) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'h29;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 86) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'h36;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 87) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h00;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 88) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'h2a;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 89) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h00;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 90) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'h2b;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 91) begin
-                reg_lcd_rs   <= 1'b1;
-                reg_lcd_data <= 16'h00;
-                reg_lcd_wr   <= 1'b0;
-            end else if (init_sequence_counter == 92) begin
-                reg_lcd_rs   <= 1'b0;
-                reg_lcd_data <= 16'h2c;
+            end else begin
+                reg_lcd_rs   <= init_sequence[init_sequence_counter][8];
+                reg_lcd_data <= init_sequence[init_sequence_counter][7:0];
                 reg_lcd_wr   <= 1'b0;
             end
             init_sequence_counter <= init_sequence_counter + 1;
