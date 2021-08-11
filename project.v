@@ -34,19 +34,19 @@ assign uart_tx = uart_rx;
 
 wire clk;
 
-SB_HFOSC #(.CLKHF_DIV("0b00")) OSCInst0 (
+SB_HFOSC #(.CLKHF_DIV("0b01")) OSCInst0 (
     .CLKHFEN(1'b1),
     .CLKHFPU(1'b1),
     .CLKHF(clk)
 );
 
 lcd lcd0 (
-  .clk(clk),
-  .led(led),
-  .lcd_data(lcd_data),
-  .lcd_rs(lcd_rs),
-  .lcd_wr(lcd_wr),
-  .lcd_fmark(lcd_fmark)
+  .i_clk(clk),
+  .o_led(led),
+  .o_lcd_data(lcd_data),
+  .o_lcd_rs(lcd_rs),
+  .o_lcd_wr(lcd_wr),
+  .i_lcd_fmark(lcd_fmark)
 );
 
 endmodule
