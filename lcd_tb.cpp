@@ -22,5 +22,5 @@ int main(int argc, char **argv, char **env)
     }
     m_trace->close();
     delete lcd;
-    exit(0);
+    return 0;
 }
