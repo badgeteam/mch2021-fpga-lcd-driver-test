@@ -3,7 +3,7 @@
 
 module lcd (
     input            i_clk,
-    output     [2:0] o_led,
+    input            i_reset,
     output     [7:0] o_lcd_data,
     output           o_lcd_rs,
     output           o_lcd_wr,
@@ -19,52 +19,50 @@ reg [8:0] reg_pixel_x = 0;
 reg [8:0] reg_pixel_y = 0;
 reg [8:0] reg_counter = 0;
 
-reg[6:0] init_sequence_counter = 0;
-reg debug1 = 0;
-reg debug2 = 0;
+reg [6:0] init_sequence_counter = 0;
 reg [2:0] state = 3'b000;
 
-reg  [8:0] init_sequence[0:92];
+reg  [8:0] init_sequence[0:100];
 
 initial begin
     init_sequence[7'h00] = 9'h0ef;
     init_sequence[7'h01] = 9'h103;
     init_sequence[7'h02] = 9'h180;
     init_sequence[7'h03] = 9'h102;
-    init_sequence[7'h04] = 9'h0cf;
+    init_sequence[7'h04] = 9'h0cf; // Power control B
     init_sequence[7'h05] = 9'h100;
     init_sequence[7'h06] = 9'h1c1;
     init_sequence[7'h07] = 9'h130;
-    init_sequence[7'h08] = 9'h0ed;
+    init_sequence[7'h08] = 9'h0ed; // Power on sequence control
     init_sequence[7'h09] = 9'h164;
     init_sequence[7'h0a] = 9'h103;
     init_sequence[7'h0b] = 9'h112;
     init_sequence[7'h0c] = 9'h181;
-    init_sequence[7'h0d] = 9'h0e8;
+    init_sequence[7'h0d] = 9'h0e8; // Driver timing control A
     init_sequence[7'h0e] = 9'h185;
     init_sequence[7'h0f] = 9'h100;
     init_sequence[7'h10] = 9'h178;
-    init_sequence[7'h11] = 9'h0cb;
+    init_sequence[7'h11] = 9'h0cb; // Power control A
     init_sequence[7'h12] = 9'h139;
     init_sequence[7'h13] = 9'h12c;
     init_sequence[7'h14] = 9'h100;
     init_sequence[7'h15] = 9'h134;
     init_sequence[7'h16] = 9'h102;
-    init_sequence[7'h17] = 9'h0f7;
+    init_sequence[7'h17] = 9'h0f7; // Pump ratio control
     init_sequence[7'h18] = 9'h120;
-    init_sequence[7'h19] = 9'h0ea;
+    init_sequence[7'h19] = 9'h0ea; // Driver timing control B
     init_sequence[7'h1a] = 9'h100;
     init_sequence[7'h1b] = 9'h100;
-    init_sequence[7'h1c] = 9'h0c0;
+    init_sequence[7'h1c] = 9'h0c0; // Power control 1
     init_sequence[7'h1d] = 9'h123;
-    init_sequence[7'h1e] = 9'h0c1;
+    init_sequence[7'h1e] = 9'h0c1; // Power control 2
     init_sequence[7'h1f] = 9'h110;
-    init_sequence[7'h20] = 9'h0c5;
+    init_sequence[7'h20] = 9'h0c5; // VCOM Control 1
     init_sequence[7'h21] = 9'h13e;
     init_sequence[7'h22] = 9'h128;
-    init_sequence[7'h23] = 9'h0c7;
+    init_sequence[7'h23] = 9'h0c7; // VCOM Control 2
     init_sequence[7'h24] = 9'h186;
-    init_sequence[7'h25] = 9'h036;
+    init_sequence[7'h25] = 9'h036; // Memory Access Control
     init_sequence[7'h26] = 9'h148;
     init_sequence[7'h27] = 9'h03a;
     init_sequence[7'h28] = 9'h155;
@@ -111,34 +109,49 @@ initial begin
     init_sequence[7'h51] = 9'h131;
     init_sequence[7'h52] = 9'h136;
     init_sequence[7'h53] = 9'h10f;
-    init_sequence[7'h54] = 9'h011;
-    init_sequence[7'h55] = 9'h029;
-    init_sequence[7'h56] = 9'h036;
-    init_sequence[7'h57] = 9'h100;
-    init_sequence[7'h58] = 9'h02a;
-    init_sequence[7'h59] = 9'h100;
-    init_sequence[7'h5a] = 9'h02b;
-    init_sequence[7'h5b] = 9'h100;
-    init_sequence[7'h5c] = 9'h02c;
+    init_sequence[7'h54] = 9'h011; // Sleep Out
+    init_sequence[7'h55] = 9'h029; // Display ON
+    init_sequence[7'h56] = 9'h036; // Memory Access Control
+    init_sequence[7'h57] = 9'h108; //   Select BGR color filter
+    init_sequence[7'h58] = 9'h02a; // Column Address Set
+    init_sequence[7'h59] = 9'h100; //   Start column [15:8]
+    init_sequence[7'h5a] = 9'h100; //   Start column [7:0]
+    init_sequence[7'h5b] = 9'h100; //   End column [15:8]
+    init_sequence[7'h5c] = 9'h1ef; //   End column [7:0]
+    init_sequence[7'h5d] = 9'h02b; // Page Address Set
+    init_sequence[7'h5e] = 9'h100; //   Start position [15:8]
+    init_sequence[7'h5f] = 9'h100; //   Start position [7:0]
+    init_sequence[7'h60] = 9'h101; //   End position   [15:8]
+    init_sequence[7'h61] = 9'h13f; //   End position   [7:0]
+    init_sequence[7'h62] = 9'h035; // Tearing Effect Line ON
+    init_sequence[7'h63] = 9'h000; //   V-Blanking information only (set to 01h for both V-Blanking and H-Blanking information
+    init_sequence[7'h64] = 9'h02c; // Memory Write
 end
 
 always @ (posedge i_clk) begin
-    if (~reg_lcd_wr) begin
-        reg_lcd_wr <= 1;
-        reg_pixel_byte <= reg_pixel_byte_next;
+    if (i_reset) begin // Reset state
+        state               <= 3'b000;
+        reg_lcd_wr          <= 1'b1;
+        reg_lcd_rs          <= 1'b1;
+        reg_lcd_data        <= 16'h0000;
+        reg_pixel_byte      <= 1'b0;
+        reg_pixel_byte_next <= 1'b0;
+    end else if (~reg_lcd_wr) begin // LCD write in progress
+        reg_lcd_wr          <= 1; // LCD writes on rising edge, this triggers the write
+        reg_pixel_byte      <= reg_pixel_byte_next;
         reg_pixel_byte_next <= 0;
     end else begin
-        if (state == 3'b000) begin
-            reg_lcd_rs   <= 1'b0;
-            reg_lcd_data <= 16'h00;
-            reg_lcd_wr   <= 1'b1;
+        if (state == 3'b000) begin // Idle state
+            reg_lcd_rs          <= 1'b1;
+            reg_lcd_data        <= 16'h0000;
+            reg_lcd_wr          <= 1'b1;
+            reg_pixel_byte      <= 1'b0;
+            reg_pixel_byte_next <= 1'b0;
+            state               <= 3'b001;
+        end else if (state == 3'b001) begin // LCD init state
             reg_pixel_byte <= 1'b0;
             reg_pixel_byte_next <= 1'b0;
-            state        <= 3'b001;
-        end else if (state == 3'b001) begin
-            reg_pixel_byte <= 1'b0;
-            reg_pixel_byte_next <= 1'b0;
-            if (init_sequence_counter >= 93) begin
+            if (init_sequence_counter >= 101) begin
                 state <= 3'b010;
                 reg_lcd_rs   <= 1'b1;
                 reg_lcd_data <= 16'h00;
@@ -189,8 +202,5 @@ end
 assign o_lcd_wr   = reg_lcd_wr;
 assign o_lcd_rs   = reg_lcd_rs;
 assign o_lcd_data = reg_pixel_byte ? reg_lcd_data[15:8] : reg_lcd_data[7:0];
-assign o_led[0]   = ~debug1;
-assign o_led[1]   = ~debug2;
-assign o_led[2]   = ~i_lcd_fmark;
 
 endmodule

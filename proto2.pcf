@@ -2,9 +2,9 @@ set_io clk         35
 
 set_io irq         10
 
-set_io led[0]      39
+set_io led[0]      41
 set_io led[1]      40
-set_io led[2]      41
+set_io led[2]      39
 
 set_io uart_tx     9
 set_io uart_rx     6
