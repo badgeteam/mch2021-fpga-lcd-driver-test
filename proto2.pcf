@@ -37,11 +37,11 @@ set_io i2s_data    36
 set_io i2s_lr      43
 set_io i2s_clk     28
 
-set_io pmod[0]     47
-set_io pmod[1]     48
-set_io pmod[2]     4
-set_io pmod[3]     2
-set_io pmod[4]     44
-set_io pmod[5]     45
-set_io pmod[6]     3
-set_io pmod[7]     46
+set_io pmod[0]     44
+set_io pmod[1]     45
+set_io pmod[2]     3
+set_io pmod[3]     46
+set_io pmod[4]     47
+set_io pmod[5]     48
+set_io pmod[6]     4
+set_io pmod[7]     2
