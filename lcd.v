@@ -7,7 +7,9 @@ module lcd (
     output     [7:0] o_lcd_data,
     output           o_lcd_rs,
     output           o_lcd_wr,
-    input            i_lcd_fmark
+    input            i_lcd_fmark,
+    output           o_lcd_cs_inverted,
+    output           o_lcd_reset_inverted
 );
 
 reg reg_lcd_wr = 1'b1;
@@ -17,12 +19,16 @@ reg reg_pixel_byte = 1'b0;
 reg reg_pixel_byte_next = 1'b0;
 reg [8:0] reg_pixel_x = 0;
 reg [8:0] reg_pixel_y = 0;
-reg [8:0] reg_counter = 0;
+reg [8:0] reg_counter_y = 0;
+reg [8:0] reg_counter_x = 0;
 
 reg [6:0] init_sequence_counter = 0;
 reg [2:0] state = 3'b000;
 
 reg  [8:0] init_sequence[0:100];
+
+reg lcd_reset_inverted;
+reg lcd_cs_inverted;
 
 initial begin
     init_sequence[7'h00] = 9'h0ef;
@@ -112,7 +118,7 @@ initial begin
     init_sequence[7'h54] = 9'h011; // Sleep Out
     init_sequence[7'h55] = 9'h029; // Display ON
     init_sequence[7'h56] = 9'h036; // Memory Access Control
-    init_sequence[7'h57] = 9'h108; //   Select BGR color filter
+    init_sequence[7'h57] = 9'h108; //   Select BGR color filter, select MV rotation
     init_sequence[7'h58] = 9'h02a; // Column Address Set
     init_sequence[7'h59] = 9'h100; //   Start column [15:8]
     init_sequence[7'h5a] = 9'h100; //   Start column [7:0]
@@ -141,18 +147,35 @@ always @ (posedge i_clk) begin
         reg_pixel_byte      <= reg_pixel_byte_next;
         reg_pixel_byte_next <= 0;
     end else begin
-        if (state == 3'b000) begin // Idle state
+        if (state == 3'b000) begin // Idle state (LCD reset)
             reg_lcd_rs          <= 1'b1;
             reg_lcd_data        <= 16'h0000;
             reg_lcd_wr          <= 1'b1;
             reg_pixel_byte      <= 1'b0;
             reg_pixel_byte_next <= 1'b0;
             state               <= 3'b001;
-        end else if (state == 3'b001) begin // LCD init state
+            lcd_reset_inverted  <= 1'b1; // Reset LCD
+            lcd_cs_inverted     <= 1'b0;
+            reg_pixel_y         <= 0;
+            reg_pixel_x         <= 0;
+        end else if (state == 3'b001) begin // Idle state (LCD starts)
+            reg_lcd_rs          <= 1'b1;
+            reg_lcd_data        <= 16'h0000;
+            reg_lcd_wr          <= 1'b1;
+            reg_pixel_byte      <= 1'b0;
+            reg_pixel_byte_next <= 1'b0;
+            state               <= 3'b010;
+            lcd_reset_inverted  <= 1'b0; // Enable LCD
+            lcd_cs_inverted     <= 1'b1; // Select LCD
+            reg_pixel_y         <= 0;
+            reg_pixel_x         <= 0;
+        end else if (state == 3'b010) begin // LCD init state
+            reg_pixel_y         <= 0;
+            reg_pixel_x         <= 0;
             reg_pixel_byte <= 1'b0;
             reg_pixel_byte_next <= 1'b0;
             if (init_sequence_counter >= 101) begin
-                state <= 3'b010;
+                state        <= 3'b100;
                 reg_lcd_rs   <= 1'b1;
                 reg_lcd_data <= 16'h00;
                 reg_lcd_wr   <= 1'b0;
@@ -170,23 +193,30 @@ always @ (posedge i_clk) begin
             reg_pixel_byte_next <= 1'b0;
         end else begin
             reg_lcd_rs   <= 1'b1;
-            if (reg_pixel_y < 32) begin
-                reg_lcd_data <= 16'b1111100000000000;
-            end else if (reg_pixel_x == reg_counter) begin
-                reg_lcd_data <= 16'b0000011111100000;
+            if (reg_pixel_x == 0 || reg_pixel_y == 0 || reg_pixel_x == 319 || reg_pixel_y == 239) begin
+                reg_lcd_data <= 16'hFFFF;
+            end else if (reg_pixel_x == reg_counter_x) begin
+                reg_lcd_data <= 16'hF800;
+            end else if (reg_pixel_y == reg_counter_y) begin
+                reg_lcd_data <= 16'h001F;
             end else begin
-                reg_lcd_data <= 16'b0000000000000000;
+                reg_lcd_data <= 16'h0000;
             end
             reg_lcd_wr   <= 1'b0;
             reg_pixel_byte_next <= 1'b1;
-            if (reg_pixel_y >= 239) begin
+            if (reg_pixel_y == 239) begin
                 reg_pixel_y <= 0;
-                if (reg_pixel_x >= 319) begin
+                if (reg_pixel_x == 319) begin
                     reg_pixel_x <= 0;
-                    if (reg_counter >= 319) begin
-                        reg_counter <= 0;
+                    if (reg_counter_x >= 319) begin
+                        reg_counter_x <= 0;
                     end else begin
-                        reg_counter <= reg_counter + 1;
+                        reg_counter_x <= reg_counter_x + 1;
+                    end
+                    if (reg_counter_y >= 239) begin
+                        reg_counter_y <= 0;
+                    end else begin
+                        reg_counter_y <= reg_counter_y + 1;
                     end
                 end else begin
                     reg_pixel_x <= reg_pixel_x + 1;
@@ -202,5 +232,7 @@ end
 assign o_lcd_wr   = reg_lcd_wr;
 assign o_lcd_rs   = reg_lcd_rs;
 assign o_lcd_data = reg_pixel_byte ? reg_lcd_data[15:8] : reg_lcd_data[7:0];
+assign o_lcd_cs_inverted = lcd_cs_inverted;
+assign o_lcd_reset_inverted = lcd_reset_inverted;
 
 endmodule
