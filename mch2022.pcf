@@ -33,9 +33,9 @@ set_io lcd_rs      11
 set_io lcd_fmark   25
 set_io lcd_wr      23
 
-set_io i2s_data    36
-set_io i2s_lr      43
-set_io i2s_clk     28
+set_io lcd_reset   36
+set_io lcd_mode    43
+set_io lcd_cs      28
 
 set_io pmod[0]     44
 set_io pmod[1]     45

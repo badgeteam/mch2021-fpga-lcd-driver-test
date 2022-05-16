@@ -20,7 +20,10 @@ module chip (
     output           lcd_rs,
     output           lcd_wr,
     input            lcd_fmark,
-    output     [7:0] pmod
+    output     [7:0] pmod,
+    input            lcd_mode,
+    inout            lcd_reset,
+    inout            lcd_cs
 );
 
 // PSRAM passthrough
@@ -37,10 +40,29 @@ assign uart_tx = uart_rx;
 reg [27:0] counter = 0;
 reg [7:0] value = 0;
 
+wire lcd_reset_int;
+wire lcd_cs_int;
+
 // LED
 assign led[0] = value[0];
 assign led[1] = value[1];
 assign led[2] = value[2];
+
+SB_IO #(
+    .PIN_TYPE(6'b 1010_01),
+) lcd_reset_sb_io (
+    .PACKAGE_PIN(lcd_reset),
+    .OUTPUT_ENABLE(lcd_reset_int),
+    .D_OUT_0(0)
+);
+
+SB_IO #(
+    .PIN_TYPE(6'b 1010_01),
+) lcd_cs_sb_io (
+    .PACKAGE_PIN(lcd_cs),
+    .OUTPUT_ENABLE(lcd_cs_int),
+    .D_OUT_0(0)
+);
 
 // Internal oscillator
 
@@ -54,11 +76,12 @@ SB_HFOSC #(.CLKHF_DIV("0b10")) OSCInst0 (
 
 lcd lcd0 (
   .clk(clk),
-  //.led(led),
   .lcd_data(lcd_data),
   .lcd_rs(lcd_rs),
   .lcd_wr(lcd_wr),
-  .lcd_fmark(lcd_fmark)
+  .lcd_fmark(lcd_fmark),
+  .lcd_reset_inverted(lcd_reset_int),
+  .lcd_cs_inverted(lcd_cs_int)
 );
 
 always @(posedge clk) begin
@@ -70,5 +93,18 @@ always @(posedge clk) begin
         counter <= counter - 1;
     end
 end
+
+
+
+/*reg [7:0] pwm_position = 8'b0;
+reg [7:0] pwm_setting = 8'b0;
+
+wire pwm_state = (pwm_setting > pwm_position);
+
+always @(posedge clk) begin
+    pwm_position <= pwm_position + 1;
+end*/
+
+
 
 endmodule

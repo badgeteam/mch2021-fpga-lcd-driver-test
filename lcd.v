@@ -6,7 +6,9 @@ module lcd (
     output     [7:0] lcd_data,
     output           lcd_rs,
     output           lcd_wr,
-    input            lcd_fmark
+    input            lcd_fmark,
+    output           lcd_cs_inverted,
+    output           lcd_reset_inverted
 );
 
 reg reg_lcd_wr = 1'b1;
@@ -25,6 +27,8 @@ reg debug3 = 0;
 reg [2:0] state = 2'h00;
 reg [31:0] slow_counter = 32'b0;
 
+reg reg_lcd_reset_inverted;
+reg reg_lcd_cs_inverted;
 
 always @ (posedge clk) begin
     if (~reg_lcd_wr) begin
@@ -32,18 +36,29 @@ always @ (posedge clk) begin
         reg_pixel_byte <= reg_pixel_byte_next;
         reg_pixel_byte_next <= 0;
     end else begin
-        if (state == 2'h00) begin
-            reg_lcd_rs   <= 1'b0;
-            reg_lcd_data <= 16'h00;
-            reg_lcd_wr   <= 1'b1;
-            reg_pixel_byte <= 1'b0;
-            reg_pixel_byte_next <= 1'b0;
-            state        <= 2'h01;
+        if (state == 2'h00) begin        
+            reg_lcd_rs             <= 1'b0;
+            reg_lcd_data           <= 16'h00;
+            reg_lcd_wr             <= 1'b1;
+            reg_pixel_byte         <= 1'b0;
+            reg_pixel_byte_next    <= 1'b0;
+            state                  <= 2'h01;
+            reg_lcd_reset_inverted <= 1'b1; // Reset LCD
+            reg_lcd_cs_inverted    <= 1'b0;
         end else if (state == 2'h01) begin
+            reg_lcd_rs             <= 1'b0;
+            reg_lcd_data           <= 16'h00;
+            reg_lcd_wr             <= 1'b1;
+            reg_pixel_byte         <= 1'b0;
+            reg_pixel_byte_next    <= 1'b0;
+            state                  <= 2'h02;
+            reg_lcd_reset_inverted <= 1'b0;
+            reg_lcd_cs_inverted    <= 1'b1; // Select LCD
+        end else if (state == 2'h02) begin
             reg_pixel_byte <= 1'b0;
             reg_pixel_byte_next <= 1'b0;
             if (init_sequence_counter >= 93) begin
-                state <= 2'h02;
+                state <= 2'h03;
                 reg_lcd_rs   <= 1'b1;
                 reg_lcd_data <= 16'h00;
                 reg_lcd_wr   <= 1'b0;
@@ -463,5 +478,7 @@ assign lcd_data = reg_pixel_byte ? reg_lcd_data[15:8] : reg_lcd_data[7:0];
 assign led[0]   = ~debug1;
 assign led[1]   = ~debug2;
 assign led[2]   = ~debug3;
+assign lcd_reset_inverted = reg_lcd_reset_inverted;
+assign lcd_cs_inverted = reg_lcd_cs_inverted;
 
 endmodule
