@@ -112,13 +112,13 @@ end
 
 // PMOD
 
-reg [7:0] pmod_counter = 0;
-reg [7:0] pmod_value;
+reg [31:0] pmod_counter = 0;
+reg [3:0] pmod_value = 0;
 
-assign pmod = pmod_value;
+assign pmod = ~(1 << pmod_value);
 
 always @(posedge clk_10khz) begin
-    if (pmod_counter == 1000) begin
+    if (pmod_counter == 2000) begin
         pmod_counter <= 0;
         pmod_value <= pmod_value + 1;
     end else begin
