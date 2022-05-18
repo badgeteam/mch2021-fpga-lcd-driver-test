@@ -200,7 +200,7 @@ always @ (posedge i_clk) begin
             end else if (reg_pixel_y == reg_counter_y) begin
                 reg_lcd_data <= 16'h001F;
             end else begin
-                reg_lcd_data <= 16'h0000;
+                reg_lcd_data <= 16'hFFFF;
             end
             reg_lcd_wr   <= 1'b0;
             reg_pixel_byte_next <= 1'b1;
