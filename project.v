@@ -42,6 +42,10 @@ assign ram_data3 = 1;
 // UART loopback
 assign uart_tx = uart_rx;
 
+assign led[0] = 1;
+assign led[1] = 1;
+assign led[2] = 1;
+
 // LED
 /*reg [7:0] pwm_val[0:2];
 
@@ -178,7 +182,9 @@ wire rst_n_pix;
 wire rst_n_bit;
 wire pll_lock;
 
-pll_12_126 pll_bit (
+pll_12_126 #(
+    .ICE40_PAD (1),
+) pll_bit (
     .clock_in  (clk_osc),
     .clock_out (clk_bit),
     .locked    (pll_lock)
@@ -222,12 +228,14 @@ wire rgb_rdy;
 reg [9:0] x_ctr;
 reg [8:0] y_ctr;
 reg [7:0] frame_ctr;
+reg frame_ctr_dir;
 
 always @ (posedge clk_pix or negedge rst_n_pix) begin
     if (!rst_n_pix) begin
         x_ctr <= 10'h0;
         y_ctr <= 9'h0;
         frame_ctr <= 8'h0;
+        frame_ctr_dir <= 0;
     end else if (rgb_rdy) begin
         if (x_ctr == 10'd638) begin
             x_ctr <= 10'h0;
@@ -247,13 +255,13 @@ end
 wire [3:0] dvi_p;
 wire [3:0] dvi_n;
 
-assign pmod[0] = dvi_p[0];
+assign pmod[0] = dvi_p[2];
 assign pmod[1] = dvi_p[1];
-assign pmod[2] = dvi_p[2];
+assign pmod[2] = dvi_p[0];
 assign pmod[3] = dvi_p[3];
-assign pmod[4] = dvi_n[0];
+assign pmod[4] = dvi_n[2];
 assign pmod[5] = dvi_n[1];
-assign pmod[6] = dvi_n[2];
+assign pmod[6] = dvi_n[0];
 assign pmod[7] = dvi_n[3];
 
 smoldvi inst_smoldvi (
@@ -264,7 +272,7 @@ smoldvi inst_smoldvi (
 
     .en        (1'b1),
 
-    .r         (x_ctr + frame_ctr),
+    .r         (6'h3F - frame_ctr),
     .g         (y_ctr + 2 * frame_ctr),
     .b         (frame_ctr),
     .rgb_rdy   (rgb_rdy),
